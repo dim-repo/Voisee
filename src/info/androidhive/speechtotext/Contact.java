@@ -46,7 +46,6 @@ public class Contact extends Activity {
 
 		// Display data in listview
 		lvContacts.setAdapter(adapter);
-
 		// On Click of each row of contact display next screen with contact
 		// number
 		lvContacts.setOnItemClickListener(new OnItemClickListener() {

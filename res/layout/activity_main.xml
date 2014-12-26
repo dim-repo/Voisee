@@ -5,6 +5,17 @@
     android:background="@drawable/bg_gradient"
     android:orientation="vertical" >
 
+    <FrameLayout
+        android:id="@+id/transparentLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true" >
+        
+    </FrameLayout>
+    
     <TextView
         android:id="@+id/txtSpeechInput"
         android:layout_width="wrap_content"

@@ -2,7 +2,6 @@ package info.androidhive.speechtotext;
 
 import java.util.ArrayList;
 import java.util.Locale;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
@@ -11,10 +10,13 @@ import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.TextToSpeech.OnInitListener;
 import android.speech.RecognizerIntent;
-import android.view.Menu;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,25 +28,28 @@ public class MainActivity extends Activity implements OnInitListener {
 	private ImageButton btnSpeak;
 	private Button btn_normal;
 	private final int REQ_CODE_SPEECH_INPUT = 100;
-
-
-
+	
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-
+	   
+		
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+		
         tts = new TextToSpeech(this, this);
         tts.setSpeechRate((float) 0.9);
         tts.setPitch(1);
-
-
+        
+        FrameLayout frameLayout = (FrameLayout) findViewById(R.id.transparentLayout);
+        frameLayout.onTouchEvent(null);
+        
 		txtSpeechInput = (TextView) findViewById(R.id.txtSpeechInput);
 		btnSpeak = (ImageButton) findViewById(R.id.btnSpeak);
 		btn_normal = (Button) findViewById(R.id.btnNormal);
 		
-
+		
 		// hide the action bar
 		getActionBar().hide();
 
@@ -52,7 +57,16 @@ public class MainActivity extends Activity implements OnInitListener {
 
 			@Override
 			public void onClick(View v) {
-				promptSpeechInput();
+				 try {
+					 
+		            	tts.speak("Voice command Activated! Please speak after the beep.", TextToSpeech.QUEUE_FLUSH, null);
+						Thread.sleep(7000);
+						promptSpeechInput();
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				
 			}
 		});
 		
@@ -62,11 +76,15 @@ public class MainActivity extends Activity implements OnInitListener {
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
 				Intent i=new Intent(MainActivity.this,NormalMessaging.class);
+				i.putExtra("user" , "normal");
 				MainActivity.this.startActivity(i);
 			}
 		});
+			
 
 	}
+	
+	
 
     @Override
     public void onInit(int status) {
@@ -75,9 +93,8 @@ public class MainActivity extends Activity implements OnInitListener {
         if (status == TextToSpeech.SUCCESS) {
             
             try {
-            	tts.speak("Voisee activated!", TextToSpeech.QUEUE_FLUSH, null);
+            	tts.speak("Voisee activated. please tap the screen to activate voice command.", TextToSpeech.QUEUE_FLUSH, null);
 				Thread.sleep(5000);
-				 promptSpeechInput();
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -120,17 +137,30 @@ public class MainActivity extends Activity implements OnInitListener {
 
 				ArrayList<String> result = data
 						.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-                if(result.get(0).equals("contacts")){
+                if(result.get(0).equalsIgnoreCase("number")){
                 	Intent i=new Intent(MainActivity.this,Contact.class);
     				MainActivity.this.startActivity(i);
                     tts.speak("we are now at contacts", TextToSpeech.QUEUE_FLUSH, null);
+                    this.finish();
                 }
-                else if(result.get(0).equals("message")){
+                else if(result.get(0).equalsIgnoreCase("boise dashboard")){
     				Intent i=new Intent(MainActivity.this,NormalMessaging.class);
+    				i.putExtra("user" , "blind");
     				MainActivity.this.startActivity(i);
-    				tts.speak("loading message", TextToSpeech.QUEUE_FLUSH, null);
+    				tts.speak("loading dashboard", TextToSpeech.QUEUE_FLUSH, null);
+    				this.finish();
 
     				
+                }
+                else if(result.get(0).equalsIgnoreCase("boise off")){
+                	 try {
+                     	tts.speak("voisee deactivated", TextToSpeech.QUEUE_FLUSH, null);
+         				Thread.sleep(3000);
+         				this.finish();
+         			} catch (InterruptedException e) {
+         				// TODO Auto-generated catch block
+         				e.printStackTrace();
+         			}	
                 }
                 else{
                 	try {
@@ -145,17 +175,21 @@ public class MainActivity extends Activity implements OnInitListener {
 
 				txtSpeechInput.setText(result.get(0));
 			}
-			break;
+			else{
+				try {
+     				 tts.speak("i'm waiting for your command, please speak after the beep", TextToSpeech.QUEUE_FLUSH, null);
+     					Thread.sleep(4000);
+     					 promptSpeechInput();
+     				} catch (InterruptedException e) {
+     					// TODO Auto-generated catch block
+     					e.printStackTrace();
+     				}
+			}
+			
 		}
+		
 
 		}
-	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main, menu);
-		return true;
 	}
 
 }

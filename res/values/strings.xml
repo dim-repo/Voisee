@@ -13,5 +13,6 @@
     <string name="toDraft">Draft</string>
     <string name="toContacts">Contacts</string>
     <string name="toContact">Contact</string>
+    <string name="toCreate">Create Message</string>
 
 </resources>

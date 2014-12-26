@@ -32,6 +32,7 @@ public class CINFO extends Activity implements OnClickListener {
 		btnCall = (Button) findViewById(R.id.btnCall);
 
 		String cid = getIntent().getStringExtra("cid");
+		
 
 		// Read Contact number of specific contact with help of Content Resolver
 		ContentResolver cr = getContentResolver();

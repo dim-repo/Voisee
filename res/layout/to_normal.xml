@@ -1,26 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_gradient" >
 
     <LinearLayout
         android:id="@+id/linearLayout1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="0" >
+        android:layout_weight="0" 
+        android:textColor="@color/white">
 
         <Button
             android:id="@+id/btnInbox"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/toInbox" >
+            android:text="@string/toInbox"
+            android:textColor="@color/white" >
         </Button>
 
         <Button
             android:id="@+id/btnSentBox"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/toSentBox" >
+            android:text="@string/toSentBox"
+            android:textColor="@color/white" >
         </Button>
 
         <Button
@@ -28,7 +32,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="10.67"
-            android:text="@string/toDraft" >
+            android:text="@string/toDraft" 
+            android:textColor="@color/white">
 
         </Button>
 
@@ -37,17 +42,31 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="4"
-            android:text="@string/toContact" />
+            android:text="@string/toContact"
+            android:textColor="@color/white" />
     </LinearLayout>
 
 	<ListView
 	    android:id="@+id/lvMsg"
 	    android:layout_width="match_parent"
 	    android:layout_height="match_parent"
+	    android:layout_alignParentBottom="true"
 	    android:layout_alignParentLeft="true"
 	    android:layout_below="@+id/linearLayout1"
-	    android:layout_weight="1" >
+	    android:layout_weight="1" 
+	    android:layout_marginTop="100px"
+	    android:textColor="@color/white">
 
 	</ListView>
+
+	<Button
+	    android:id="@+id/btnCreate"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_alignParentLeft="true"
+	    android:layout_alignParentRight="true"
+	    android:layout_below="@+id/linearLayout1"
+	    android:text="@string/toCreate" 
+	    android:textColor="@color/white"/>
 
 </RelativeLayout>
