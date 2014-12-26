@@ -13,7 +13,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.CommonDataKinds.Phone;
@@ -21,7 +20,6 @@ import android.speech.RecognizerIntent;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.TextToSpeech.OnInitListener;
 import android.telephony.SmsManager;
-import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -46,7 +44,8 @@ public class create_message extends Activity implements OnClickListener,OnInitLi
 			setContentView(R.layout.sms);
 			
 			user = getIntent().getStringExtra("user");
-			 tts = new TextToSpeech(this, this);
+			number = getIntent().getStringExtra("number");
+			tts = new TextToSpeech(this, this);
 	        tts.setSpeechRate((float) 0.9);
 	        tts.setPitch(1);
 
@@ -61,56 +60,65 @@ public class create_message extends Activity implements OnClickListener,OnInitLi
 		
 		
 		public boolean checkContact(String checkName){
-			
-			
-			ContentResolver cr = getContentResolver();
-			Cursor cursor = cr.query(ContactsContract.Contacts.CONTENT_URI, null,
-					"UPPER(DISPLAY_NAME) = '" +checkName.toUpperCase()+ "'", null, null);
-			if (cursor.moveToFirst()) {
-			    String contactId =
-			        cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
-			    //
-			    //  Get all phone numbers.
-			    //
-			    Cursor phones = cr.query(Phone.CONTENT_URI, null,
-			        Phone.CONTACT_ID + " = " + contactId, null, null);
-			    while (phones.moveToNext()) {
-			        number = phones.getString(phones.getColumnIndex(Phone.NUMBER));
-			        int type = phones.getInt(phones.getColumnIndex(Phone.TYPE));
-			        switch (type) {
-			            case Phone.TYPE_HOME:
-			            	Toast.makeText(getApplicationContext(), "TYPE_HOME", Toast.LENGTH_LONG);
-			                break;
-			            case Phone.TYPE_MOBILE:
-			            	Toast.makeText(getApplicationContext(), "TYPE_MOBILE", Toast.LENGTH_LONG);
-			                break;
-			            case Phone.TYPE_WORK:
-			            	Toast.makeText(getApplicationContext(), "TYPE_WORK", Toast.LENGTH_LONG);
-			                break;
-			        }
-			    }
-			}
-			if(number.equalsIgnoreCase("")){
-				try {
-					tts.speak("contact not found", TextToSpeech.QUEUE_FLUSH, null);	
-					Thread.sleep(3000);
-					
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				return false;
+			if(checkName.matches("-?\\d+(\\s\\d+)?")){
+				number = checkName;
+				return true;
 			}
 			else{
-				try {
-					Thread.sleep(2000);
-							
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+				ContentResolver cr = getContentResolver();
+				Cursor cursor = cr.query(ContactsContract.Contacts.CONTENT_URI, null,
+						"UPPER(DISPLAY_NAME) = '" +checkName.toUpperCase()+ "'", null, null);
+				if (cursor.moveToFirst()) {
+				    String contactId =
+				        cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
+				    //
+				    //  Get all phone numbers.
+				    //
+				    Cursor phones = cr.query(Phone.CONTENT_URI, null,
+				        Phone.CONTACT_ID + " = " + contactId, null, null);
+				    while (phones.moveToNext()) {
+				        number = phones.getString(phones.getColumnIndex(Phone.NUMBER));
+				        int type = phones.getInt(phones.getColumnIndex(Phone.TYPE));
+				        switch (type) {
+				            case Phone.TYPE_HOME:
+				            	Toast.makeText(getApplicationContext(), "TYPE_HOME", Toast.LENGTH_LONG);
+				                break;
+				            case Phone.TYPE_MOBILE:
+				            	Toast.makeText(getApplicationContext(), "TYPE_MOBILE", Toast.LENGTH_LONG);
+				                break;
+				            case Phone.TYPE_WORK:
+				            	Toast.makeText(getApplicationContext(), "TYPE_WORK", Toast.LENGTH_LONG);
+				                break;
+				        }
+				    }
 				}
-				return true;	
+				if(number.equalsIgnoreCase("none")){
+					try {
+						if(!user.equals("normal")){
+							tts.speak("contact not found", TextToSpeech.QUEUE_FLUSH, null);
+							Thread.sleep(3000);
+						}else{
+							Toast.makeText(getApplicationContext(), "Contact Not found", Toast.LENGTH_LONG).show();
+						}		
+						
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					return false;
 				}
+				else{
+					try {
+						Thread.sleep(2000);
+								
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					return true;	
+					}
+				
+			}
 			
 		}
 		
@@ -157,9 +165,8 @@ public class create_message extends Activity implements OnClickListener,OnInitLi
 							}
 							else{
 								tts.speak("Sending failed, not enough load  balance, returning to dashboard", TextToSpeech.QUEUE_FLUSH, null);
+								Thread.sleep(5000);
 							}
-							
-							Thread.sleep(5000);
 							create_message.this.finish();
 							Intent i=new Intent(create_message.this,NormalMessaging.class);
 							i.putExtra("user", user);
@@ -171,16 +178,13 @@ public class create_message extends Activity implements OnClickListener,OnInitLi
 							
 		                break;
 		            case SmsManager.RESULT_ERROR_NO_SERVICE:
-		                Toast.makeText(getBaseContext(), "No service",
-		                        Toast.LENGTH_SHORT).show();
+		            	Toast.makeText(getApplicationContext(), "Sending failed", Toast.LENGTH_LONG).show();
 		                break;
 		            case SmsManager.RESULT_ERROR_NULL_PDU:
-		                Toast.makeText(getBaseContext(), "Null PDU",
-		                        Toast.LENGTH_SHORT).show();
+		            	Toast.makeText(getApplicationContext(), "Sending failed", Toast.LENGTH_LONG).show();
 		                break;
 		            case SmsManager.RESULT_ERROR_RADIO_OFF:
-		                Toast.makeText(getBaseContext(), "Radio off",
-		                        Toast.LENGTH_SHORT).show();
+		            	Toast.makeText(getApplicationContext(), "Sending failed", Toast.LENGTH_LONG).show();
 		                break;
 		            }
 		        }
@@ -195,8 +199,7 @@ public class create_message extends Activity implements OnClickListener,OnInitLi
 			            	
 			                break;
 			            case Activity.RESULT_CANCELED:
-			                Toast.makeText(getBaseContext(), "SMS not delivered",
-			                        Toast.LENGTH_SHORT).show();
+			            	Toast.makeText(getApplicationContext(), "Sending failed", Toast.LENGTH_LONG).show();
 			                break;
 			            }
 					
@@ -219,6 +222,7 @@ public class create_message extends Activity implements OnClickListener,OnInitLi
 
 			if (v == btnSend) {
 				if(this.checkContact(txtNumber.getText().toString())){
+				 Toast.makeText(getApplicationContext(), "Sending....", Toast.LENGTH_LONG).show();
 				 this.sendSMS(number, txtMessage.getText().toString());
 			 }
 								
@@ -232,11 +236,13 @@ public class create_message extends Activity implements OnClickListener,OnInitLi
 	        if (status == TextToSpeech.SUCCESS) {
 	            
 	            try {
-	            	
-	            	 if(!user.equals("normal")){
-	            		 tts.speak("please add contact after the beep.", TextToSpeech.QUEUE_FLUSH, null);
+	            	 if(!user.equals("normal") && number.equals("none")){
+	            		tts.speak("please add contact after the beep.", TextToSpeech.QUEUE_FLUSH, null);
 	 					Thread.sleep(6000);
 	 					 promptSpeechInput();
+	 				 }else if(!number.equals("none")){
+	 					txtNumber.setText(number);
+	 					counter++;
 	 				 }
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
@@ -284,8 +290,8 @@ public class create_message extends Activity implements OnClickListener,OnInitLi
 		                	try {
 		                		txtNumber.setText(result.get(0));
 		                		name = result.get(0).toString();
-		                    	tts.speak("you entered "+result.get(0)+", is it  right?", TextToSpeech.QUEUE_FLUSH, null);
-								Thread.sleep(3000);
+		                    	tts.speak("you entered "+name+", is it  right?", TextToSpeech.QUEUE_FLUSH, null);
+								Thread.sleep(7000);
 								promptSpeechInput();
 							} catch (InterruptedException e1) {
 								// TODO Auto-generated catch block
@@ -331,7 +337,7 @@ public class create_message extends Activity implements OnClickListener,OnInitLi
 	                
 	                	else{
 	                		try {
-	   	     				 tts.speak("Please answer! YES? or NO?", TextToSpeech.QUEUE_FLUSH, null);
+	   	     				 tts.speak("Please answer! YES or NO", TextToSpeech.QUEUE_FLUSH, null);
 	   	     					Thread.sleep(4000);
 	   	     					promptSpeechInput();
 	   	     				} catch (InterruptedException e) {
@@ -357,7 +363,8 @@ public class create_message extends Activity implements OnClickListener,OnInitLi
 
 	    				
 	                }
-	                else if(counter == 3 && result.get(0).equalsIgnoreCase("yes")){
+	                else if(counter == 3 && result.get(0).equalsIgnoreCase("send")){
+	                	tts.speak("sending message", TextToSpeech.QUEUE_FLUSH, null);
 	                	this.sendSMS(number, txtMessage.getText().toString());
 	                }
 	                else if(result.get(0).equalsIgnoreCase("boise dashboard")){

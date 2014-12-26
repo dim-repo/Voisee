@@ -10,13 +10,11 @@ import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.TextToSpeech.OnInitListener;
 import android.speech.RecognizerIntent;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -88,7 +86,7 @@ public class MainActivity extends Activity implements OnInitListener {
 
     @Override
     public void onInit(int status) {
-
+    	
         // check if Text To Speech is initialized or not
         if (status == TextToSpeech.SUCCESS) {
             
@@ -143,7 +141,7 @@ public class MainActivity extends Activity implements OnInitListener {
                     tts.speak("we are now at contacts", TextToSpeech.QUEUE_FLUSH, null);
                     this.finish();
                 }
-                else if(result.get(0).equalsIgnoreCase("boise dashboard")){
+                else if(result.get(0).equalsIgnoreCase("boise")){
     				Intent i=new Intent(MainActivity.this,NormalMessaging.class);
     				i.putExtra("user" , "blind");
     				MainActivity.this.startActivity(i);

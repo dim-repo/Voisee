@@ -84,7 +84,8 @@ public class NormalMessaging extends Activity implements OnClickListener,OnInitL
 
 		// List required columns
 		String[] reqCols = new String[] { "_id", "address", "body","read" };
-
+		
+		
 		// Get Content Resolver object, which will deal with Content
 		// Provider
 		ContentResolver cr = getContentResolver();
@@ -167,6 +168,7 @@ public class NormalMessaging extends Activity implements OnClickListener,OnInitL
 		if (v == btnCreate) {	
 			Intent i=new Intent(NormalMessaging.this,create_message.class);
 			i.putExtra("user", "normal");
+			i.putExtra("number" , "none");
 			NormalMessaging.this.startActivity(i);
 		}
 
@@ -278,6 +280,7 @@ public class NormalMessaging extends Activity implements OnClickListener,OnInitL
                 else if(result.get(0).equalsIgnoreCase("new message")){
                 	Intent i=new Intent(NormalMessaging.this,create_message.class);
                 	i.putExtra("user", "blind");
+                	i.putExtra("number" , "none");
         			NormalMessaging.this.startActivity(i);
         			tts.speak("preparing S M S", TextToSpeech.QUEUE_FLUSH, null);
         			this.finish();

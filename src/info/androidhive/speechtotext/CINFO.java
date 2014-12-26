@@ -20,6 +20,7 @@ public class CINFO extends Activity implements OnClickListener {
 	// GUI Widget
 	TextView lblNumber;
 	Button btnCall;
+	Button btnMsg;
 	String number;
 
 	/** Called when the activity is first created. */
@@ -30,6 +31,7 @@ public class CINFO extends Activity implements OnClickListener {
 
 		lblNumber = (TextView) findViewById(R.id.lblNumber);
 		btnCall = (Button) findViewById(R.id.btnCall);
+		btnMsg = (Button) findViewById(R.id.btnMsg);
 
 		String cid = getIntent().getStringExtra("cid");
 		
@@ -47,6 +49,7 @@ public class CINFO extends Activity implements OnClickListener {
 		// Display Contact Number into Label
 		lblNumber.setText(number);
 		btnCall.setOnClickListener(this);
+		btnMsg.setOnClickListener(this);
 	}
 
 	@Override
@@ -57,6 +60,11 @@ public class CINFO extends Activity implements OnClickListener {
 			Intent iCall = new Intent(Intent.ACTION_CALL, Uri.parse("tel:"
 					+ number));
 			startActivity(iCall);
+		}else if(v == btnMsg){
+			Intent i=new Intent(CINFO.this,create_message.class);
+			i.putExtra("user", "normal");
+			i.putExtra("number",number);
+			CINFO.this.startActivity(i);
 		}
 
 	}
