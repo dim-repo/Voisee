@@ -6,6 +6,7 @@ import java.util.Locale;
 
 import android.app.Activity;
 import android.app.PendingIntent;
+import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
@@ -24,18 +25,21 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 public class create_message extends Activity implements OnClickListener,OnInitListener{
 	// Wiget GUI
 		private TextToSpeech tts;
 		private final int REQ_CODE_SPEECH_INPUT = 100;
+		
 		int counter = 0;
 		String number = "";
 		EditText txtNumber, txtMessage;
 		Button btnSend;
 		String name = "";
 		String user;
+		ProgressDialog progress = new ProgressDialog(this);
 
 		/** Called when the activity is first created. */
 		@Override
@@ -48,6 +52,7 @@ public class create_message extends Activity implements OnClickListener,OnInitLi
 			tts = new TextToSpeech(this, this);
 	        tts.setSpeechRate((float) 0.9);
 	        tts.setPitch(1);
+	        
 
 			// Init GUI
 			txtNumber = (EditText) findViewById(R.id.txtNumber);
@@ -143,6 +148,7 @@ public class create_message extends Activity implements OnClickListener,OnInitLi
 		            case Activity.RESULT_OK:				
 						try {
 							if(user.equals("normal")){
+								progress.dismiss();
 								Toast.makeText(getApplicationContext(), "Message sent successfully, returning to dashboard", Toast.LENGTH_LONG).show();
 							}
 							else{
@@ -223,6 +229,7 @@ public class create_message extends Activity implements OnClickListener,OnInitLi
 			if (v == btnSend) {
 				if(this.checkContact(txtNumber.getText().toString())){
 				 Toast.makeText(getApplicationContext(), "Sending....", Toast.LENGTH_LONG).show();
+				 progress.show(this, "Loading", "Wait while loading...");
 				 this.sendSMS(number, txtMessage.getText().toString());
 			 }
 								

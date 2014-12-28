@@ -1,31 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:orientation="vertical" 
-	android:layout_width="fill_parent"
-	android:layout_height="fill_parent"
-	android:background="@drawable/bg_gradient">
-	<EditText 
-	    android:layout_width="match_parent"
-		android:layout_height="wrap_content" 
-		android:hint="Enter Mobile Number"
-		android:id="@+id/txtNumber"
-		android:textColor="@color/white"
-		>
-		<requestFocus></requestFocus>
-	</EditText>
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@drawable/bg_gradient"
+    android:orientation="vertical" >
 
-	<EditText
-	    android:id="@+id/txtMesssage"
-	    android:layout_width="match_parent"
-	    android:layout_height="140dp"
-	    android:hint="Enter Message" 
-	    android:textColor="@color/white">
-</EditText>
-	<Button 
-	    android:layout_width="match_parent"
-		android:layout_height="wrap_content" 
-		android:text="Send SMS"
-		android:id="@+id/btnSMS"
-		android:textColor="@color/white">
-	</Button>
+    <EditText
+        android:id="@+id/txtNumber"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter Mobile Number"
+        android:textColor="@color/white" >
+
+        <requestFocus>
+        </requestFocus>
+    </EditText>
+
+    <EditText
+        android:id="@+id/txtMesssage"
+        android:layout_width="match_parent"
+        android:layout_height="140dp"
+        android:hint="Enter Message"
+        android:textColor="@color/white" >
+    </EditText>
+
+    <Button
+        android:id="@+id/btnSMS"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Send SMS"
+        android:textColor="@color/white" >
+    </Button>
+
 </LinearLayout>

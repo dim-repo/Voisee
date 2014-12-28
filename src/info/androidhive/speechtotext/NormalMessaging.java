@@ -13,6 +13,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.view.Menu;
 import android.view.View;
 import android.speech.tts.TextToSpeech;
@@ -38,6 +39,10 @@ public class NormalMessaging extends Activity implements OnClickListener,OnInitL
 	TextView lblMsg, lblNo, lblStatus;
 	ListView lvMsg;
 	String user;
+	String state;
+	String[] action;
+	String number;
+	String msg;
 
 
 	// Cursor Adapter
@@ -48,6 +53,7 @@ public class NormalMessaging extends Activity implements OnClickListener,OnInitL
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.to_normal);
+		
 		
 			user = getIntent().getStringExtra("user");
 	
@@ -83,7 +89,7 @@ public class NormalMessaging extends Activity implements OnClickListener,OnInitL
 		Uri inboxURI = Uri.parse("content://sms/"+type);
 
 		// List required columns
-		String[] reqCols = new String[] { "_id", "address", "body","read" };
+		String[] reqCols = new String[] { "_id", "address", "body","read","date" };
 		
 		
 		// Get Content Resolver object, which will deal with Content
@@ -97,24 +103,22 @@ public class NormalMessaging extends Activity implements OnClickListener,OnInitL
 				 if(c.moveToFirst()) {
 					 try {
 						 tts.speak("You have "+c.getCount()+", Unread message", TextToSpeech.QUEUE_FLUSH, null);
-							Thread.sleep(4000);
+							Thread.sleep(3000);
+						 tts.speak("this are the senders my friend", TextToSpeech.QUEUE_FLUSH, null);
+						 	Thread.sleep(2000);
 						for(int i=0; i < c.getCount(); i++) {
 							try {
 								tts.speak(c.getString(c.getColumnIndexOrThrow("address")).toString()+
-					        			   " has a message for you", TextToSpeech.QUEUE_FLUSH, null);
-									Thread.sleep(12000);
-									tts.speak("reading message", TextToSpeech.QUEUE_FLUSH, null);
-									Thread.sleep(3000);
-									tts.speak(c.getString(c.getColumnIndexOrThrow("body")).toString()
-						        			   , TextToSpeech.QUEUE_FLUSH, null);
-									Thread.sleep(Integer.parseInt(c.getString(c.getColumnIndexOrThrow("body")).toString().length()+"00"));
+					        			   ". date."+c.getString(c.getColumnIndexOrThrow("date")), TextToSpeech.QUEUE_FLUSH, null);
+									Thread.sleep(10000);
+									promptSpeechInput();
 								} catch (InterruptedException e) {
 									// TODO Auto-generated catch block
 									e.printStackTrace();
 								}
 			               c.moveToNext();
-			           }
-		
+						}
+						
 						} catch (InterruptedException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
@@ -125,6 +129,7 @@ public class NormalMessaging extends Activity implements OnClickListener,OnInitL
 					 try {
 						tts.speak("You have no unread message", TextToSpeech.QUEUE_FLUSH, null);
 						Thread.sleep(3000);
+						promptSpeechInput();
 					 } catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -145,6 +150,7 @@ public class NormalMessaging extends Activity implements OnClickListener,OnInitL
 		lvMsg.setAdapter(adapter);
 	}
 
+
 	@Override
 	public void onClick(View v) {
 
@@ -164,12 +170,11 @@ public class NormalMessaging extends Activity implements OnClickListener,OnInitL
 		if (v == btnContact) {	
 			Intent i=new Intent(NormalMessaging.this,Contact.class);
 			NormalMessaging.this.startActivity(i);
+			this.finish();
 		}
 		if (v == btnCreate) {	
-			Intent i=new Intent(NormalMessaging.this,create_message.class);
-			i.putExtra("user", "normal");
-			i.putExtra("number" , "none");
-			NormalMessaging.this.startActivity(i);
+			createSms("none","normal");
+			this.finish();
 		}
 
 	}
@@ -180,17 +185,23 @@ public class NormalMessaging extends Activity implements OnClickListener,OnInitL
 			 
 			 try {
 				 if(!user.equals("normal")){
+					 number = "";
+					 state = "main";
+					 action[0] = "none";
 					 tts.speak("We are now at dashboard", TextToSpeech.QUEUE_FLUSH, null);
 					Thread.sleep(4000);
 					 promptSpeechInput();
 				 }
-				} catch (InterruptedException e) {
+			} 
+			 catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
-				}
-	        } else {
+			 }
+	     }
+		 
+		 else {
 	            Toast.makeText(getApplicationContext(), "Text To Speech is not initialized", Toast.LENGTH_LONG).show();
-	        }
+		 }
 		
 	}
 	
@@ -233,6 +244,7 @@ public class NormalMessaging extends Activity implements OnClickListener,OnInitL
                 if(result.get(0).equalsIgnoreCase("you")){	
                 		
                 		try {
+                			state = "inbox";
                 			tts.speak("now loading inbox", TextToSpeech.QUEUE_FLUSH, null);
 							Thread.sleep(2000);
 							this.inbox("inbox");    	        
@@ -246,6 +258,7 @@ public class NormalMessaging extends Activity implements OnClickListener,OnInitL
                 }
                 else if(result.get(0).equalsIgnoreCase("me")) {
         			try {
+        				state = "sentbox";
         				tts.speak("now loading sentbox", TextToSpeech.QUEUE_FLUSH, null);
                     	this.inbox("sent");
         	            Thread.sleep(2000);
@@ -258,6 +271,7 @@ public class NormalMessaging extends Activity implements OnClickListener,OnInitL
                 	tts.speak("now loading draft", TextToSpeech.QUEUE_FLUSH, null);
                 	this.inbox("draft");
         			try {
+        				state = "save";
         	            Thread.sleep(2000);
         	            promptSpeechInput();
         	        } catch (InterruptedException ie) {
@@ -278,10 +292,7 @@ public class NormalMessaging extends Activity implements OnClickListener,OnInitL
     				
                 }
                 else if(result.get(0).equalsIgnoreCase("new message")){
-                	Intent i=new Intent(NormalMessaging.this,create_message.class);
-                	i.putExtra("user", "blind");
-                	i.putExtra("number" , "none");
-        			NormalMessaging.this.startActivity(i);
+                	createSms("none","blind");
         			tts.speak("preparing S M S", TextToSpeech.QUEUE_FLUSH, null);
         			this.finish();
     				
@@ -292,17 +303,90 @@ public class NormalMessaging extends Activity implements OnClickListener,OnInitL
         			tts.speak("returning to home", TextToSpeech.QUEUE_FLUSH, null);
                 	this.finish();	
                 }
+                else if(state.equalsIgnoreCase("inbox")){
+                	
+                	if(action[0].equalsIgnoreCase("none") && result.get(0).split(" ",2)[0].equalsIgnoreCase("read")){
+                		try {
+                			action = result.get(0).split(" ",2);
+                    		tts.speak("Sender "+action[1]+", is it right?", TextToSpeech.QUEUE_FLUSH, null);
+							Thread.sleep(2000);
+							promptSpeechInput();
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}	
+                	 }
+                	else if(action[0].equalsIgnoreCase("read")){
+                		if(result.get(0).equalsIgnoreCase("reply") && !number.equals("")){
+                			createSms(number,"blind");
+                			tts.speak("preparing S M S", TextToSpeech.QUEUE_FLUSH, null);
+                			this.finish();
+                		}
+                		else if(action[1].equalsIgnoreCase("")){
+                			try {
+                    			action[1] = result.get(0);
+                        		tts.speak("Sender "+action[1]+", is it right?", TextToSpeech.QUEUE_FLUSH, null);
+    							Thread.sleep(2000);
+    							promptSpeechInput();
+    						} catch (InterruptedException e) {
+    							// TODO Auto-generated catch block
+    							e.printStackTrace();
+    						}
+                		}
+                		else if(result.get(0).equalsIgnoreCase("yes")){
+                			if(this.checkName(action[1])){
+	                		try {
+			                		tts.speak("now reading "+action[1]+"'s message.", TextToSpeech.QUEUE_FLUSH, null);
+			          					Thread.sleep(2000);
+			          				tts.speak(msg+". Voisee done reading message. ", TextToSpeech.QUEUE_FLUSH, null);
+			          					Thread.sleep(2000);	
+			          					 promptSpeechInput();
+			          				} catch (InterruptedException e) {
+			          					// TODO Auto-generated catch block
+			          					e.printStackTrace();
+			          				}
+	                		}
+	                		else{
+	                			try {	
+		                			tts.speak(action[1]+" not found in inbox please state again the name.", TextToSpeech.QUEUE_FLUSH, null);
+									action[1] = "";
+		                			Thread.sleep(3000);
+									promptSpeechInput();
+								} catch (InterruptedException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+	                		}
+                		}
+                		else if(result.get(0).equalsIgnoreCase("no")){
+                			try {	
+	                			tts.speak("sorry my friend, please state again the name of the sender", TextToSpeech.QUEUE_FLUSH, null);
+								action[1] = "";
+	                			Thread.sleep(3000);
+								promptSpeechInput();
+							} catch (InterruptedException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+                		}
+                		else{
+                			try {
+   	   	     				 tts.speak("Please answer! YES or NO", TextToSpeech.QUEUE_FLUSH, null);
+   	   	     					Thread.sleep(4000);
+   	   	     					promptSpeechInput();
+   	   	     				} catch (InterruptedException e) {
+   	   	     					
+   	   	     					e.printStackTrace();
+   	   	     				}
+                		}
+                	}
+                	else{
+                		unknown();
+                	}
 
+                }
                 else{
-                	try {
-       				 tts.speak("unknown command", TextToSpeech.QUEUE_FLUSH, null);
-       					Thread.sleep(2000);
-       					 promptSpeechInput();
-       				} catch (InterruptedException e) {
-       					// TODO Auto-generated catch block
-       					e.printStackTrace();
-       				}
-
+                	unknown();
                 }
 
 			}
@@ -321,6 +405,42 @@ public class NormalMessaging extends Activity implements OnClickListener,OnInitL
 		
 
 		}
+	}
+	
+	public boolean checkName(String name){
+		Uri inboxURI = Uri.parse("content://sms/inbox");
+
+		String[] reqCols = new String[] { "_id", "address", "body","read","date" };
+		ContentResolver cr = getContentResolver();
+		Cursor c = cr.query(ContactsContract.Contacts.CONTENT_URI, null,
+				"UPPER(DISPLAY_NAME) = '" +name.toUpperCase()+ "'", null, null);
+		if(c.moveToFirst()){
+			msg = c.getString(c.getColumnIndexOrThrow("body")).toString();
+			number = c.getString(c.getColumnIndexOrThrow("address")).toString();
+			return true;
+		}
+		else{
+			return false;
+		}
+		
+	}
+	
+	public void unknown(){
+		try {
+				 tts.speak("unknown command", TextToSpeech.QUEUE_FLUSH, null);
+					Thread.sleep(2000);
+					 promptSpeechInput();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+	}
+	
+	public void createSms(String num, String user){
+		Intent i=new Intent(NormalMessaging.this,create_message.class);
+		i.putExtra("user", user);
+		i.putExtra("number" , num);
+		NormalMessaging.this.startActivity(i);
 	}
 
 	@Override
