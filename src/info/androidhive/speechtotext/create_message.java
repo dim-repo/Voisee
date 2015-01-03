@@ -6,7 +6,6 @@ import java.util.Locale;
 
 import android.app.Activity;
 import android.app.PendingIntent;
-import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
@@ -25,7 +24,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
 public class create_message extends Activity implements OnClickListener,OnInitListener{
@@ -39,7 +37,8 @@ public class create_message extends Activity implements OnClickListener,OnInitLi
 		Button btnSend;
 		String name = "";
 		String user;
-		ProgressDialog progress = new ProgressDialog(this);
+		String message = "";
+		String msgHolder = "";
 
 		/** Called when the activity is first created. */
 		@Override
@@ -148,7 +147,6 @@ public class create_message extends Activity implements OnClickListener,OnInitLi
 		            case Activity.RESULT_OK:				
 						try {
 							if(user.equals("normal")){
-								progress.dismiss();
 								Toast.makeText(getApplicationContext(), "Message sent successfully, returning to dashboard", Toast.LENGTH_LONG).show();
 							}
 							else{
@@ -229,7 +227,6 @@ public class create_message extends Activity implements OnClickListener,OnInitLi
 			if (v == btnSend) {
 				if(this.checkContact(txtNumber.getText().toString())){
 				 Toast.makeText(getApplicationContext(), "Sending....", Toast.LENGTH_LONG).show();
-				 progress.show(this, "Loading", "Wait while loading...");
 				 this.sendSMS(number, txtMessage.getText().toString());
 			 }
 								
@@ -247,9 +244,15 @@ public class create_message extends Activity implements OnClickListener,OnInitLi
 	            		tts.speak("please add contact after the beep.", TextToSpeech.QUEUE_FLUSH, null);
 	 					Thread.sleep(6000);
 	 					 promptSpeechInput();
-	 				 }else if(!number.equals("none")){
+	 				 }else if(!number.equals("none") && user.equals("normal")){
 	 					txtNumber.setText(number);
-	 					counter++;
+	 					counter = 1;
+	 				 }else if(!number.equals("none") && !user.equals("normal")){
+	 					txtNumber.setText(number);
+	 					counter = 1;
+	 					tts.speak("please add message.", TextToSpeech.QUEUE_FLUSH, null);
+	 					Thread.sleep(3000);
+	 					 promptSpeechInput();			 
 	 				 }
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
@@ -293,77 +296,105 @@ public class create_message extends Activity implements OnClickListener,OnInitLi
                 	
                 	
 	                if(counter == 0 && !result.get(0).equalsIgnoreCase("boise dashboard") && !result.get(0).equalsIgnoreCase("go home")){
-	                	if(!result.get(0).equalsIgnoreCase("yes") && !result.get(0).equalsIgnoreCase("no") && name == "" ){
-		                	try {
-		                		txtNumber.setText(result.get(0));
-		                		name = result.get(0).toString();
-		                    	tts.speak("you entered "+name+", is it  right?", TextToSpeech.QUEUE_FLUSH, null);
-								Thread.sleep(7000);
-								promptSpeechInput();
-							} catch (InterruptedException e1) {
-								// TODO Auto-generated catch block
-								e1.printStackTrace();
-							}
-	                	}
-	                	else if(result.get(0).equalsIgnoreCase("no")){
-	                		try {
-	                			name = "";
-	                			tts.speak("i'm sorry boss, please add contact again.", TextToSpeech.QUEUE_FLUSH, null);
-								Thread.sleep(4000);
-								promptSpeechInput();
-							} catch (InterruptedException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}	
-	                	}
-	                	else if(result.get(0).equalsIgnoreCase("yes")){
-	                		
-	                		if(this.checkContact(name)){
-	                			try {
-			                		tts.speak("done adding contact, please add message", TextToSpeech.QUEUE_FLUSH, null);
-				                	counter ++;
-			          					Thread.sleep(3000);
-			          					 promptSpeechInput();
-			          				} catch (InterruptedException e) {
-			          					// TODO Auto-generated catch block
-			          					e.printStackTrace();
-			          				}
-	                		}
-	                		else{
-	                			try {
-		                			name = "";
-		                			tts.speak("please add contact again.", TextToSpeech.QUEUE_FLUSH, null);
-									Thread.sleep(3000);
+	                	try {
+		                	if(!result.get(0).equalsIgnoreCase("yes") && !result.get(0).equalsIgnoreCase("no") && name == "" ){
+		                		
+			                		txtNumber.setText(result.get(0));
+			                		name = result.get(0).toString();
+			                    	tts.speak("you entered "+name+", is it  right?", TextToSpeech.QUEUE_FLUSH, null);
+									Thread.sleep(7000);
 									promptSpeechInput();
-								} catch (InterruptedException e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								}
-	                		}
-	                	}
-	                
-	                	else{
-	                		try {
-	   	     				 tts.speak("Please answer! YES or NO", TextToSpeech.QUEUE_FLUSH, null);
-	   	     					Thread.sleep(4000);
-	   	     					promptSpeechInput();
-	   	     				} catch (InterruptedException e) {
-	   	     					
-	   	     					e.printStackTrace();
-	   	     				}
-	                	}
+								
+		                	}
+		                	else if(result.get(0).equalsIgnoreCase("no")){
+		                		
+		                			name = "";
+		                			tts.speak("i'm sorry boss, please add contact again.", TextToSpeech.QUEUE_FLUSH, null);
+									Thread.sleep(4000);
+									promptSpeechInput();
+									
+		                	}
+		                	else if(result.get(0).equalsIgnoreCase("yes")){
+		                		
+		                		if(this.checkContact(name)){
+		                		
+				                		tts.speak("done adding contact, please add message", TextToSpeech.QUEUE_FLUSH, null);
+					                	counter ++;
+				          					Thread.sleep(3000);
+				          					 promptSpeechInput();
+				          				
+		                		}
+		                		else{
+			                			name = "";
+			                			tts.speak("please add contact again.", TextToSpeech.QUEUE_FLUSH, null);
+										Thread.sleep(3000);
+										promptSpeechInput();
+		                		}
+		                	}
+		                
+		                	else{
+		                		
+		   	     				 tts.speak("Please answer! YES or NO", TextToSpeech.QUEUE_FLUSH, null);
+		   	     					Thread.sleep(4000);
+		   	     					promptSpeechInput();
+		   	     				
+		                	}
+	                		
+	                	} catch (InterruptedException e) {
+   	     					
+   	     					e.printStackTrace();
+   	     				}
 	                	
 	                	
 	                }
 	                else if(counter == 1 && !result.get(0).equalsIgnoreCase("boise dashboard") && !result.get(0).equalsIgnoreCase("go home")){
-	                	txtMessage.setText(result.get(0));
-	                	counter ++;
+	                	
 	                	try {
-	                		tts.speak("done adding message, ready to send", TextToSpeech.QUEUE_FLUSH, null);
-		                	counter ++;
-	          					Thread.sleep(4000);
+	                		if(msgHolder == "" && !result.get(0).equalsIgnoreCase("yes") 
+	                				&& !result.get(0).equalsIgnoreCase("continue") 
+	                				&& !result.get(0).equalsIgnoreCase("done") 
+	                				&& !result.get(0).equalsIgnoreCase("no")){
+	                			msgHolder = result.get(0).toString();
+	                			tts.speak("reading your message: "+message+" "+msgHolder+". is this right?", TextToSpeech.QUEUE_FLUSH, null);
+		          				Thread.sleep(4000);
+		          				promptSpeechInput();
+	                		}
+	                		else if(result.get(0).equalsIgnoreCase("yes")){
+	                			message = message+" "+msgHolder;
+	                			
+	                			txtMessage.setText(message);
+	                			tts.speak("say continue to add message. or finish if done.", TextToSpeech.QUEUE_FLUSH, null);
+		          				Thread.sleep(4000);
+		          				promptSpeechInput();
+
+	                		}
+	                		else if(result.get(0).equalsIgnoreCase("no")){
+	                			msgHolder = "";
+	                			tts.speak("i'm sorry. please state again your message.", TextToSpeech.QUEUE_FLUSH, null);
+		          				Thread.sleep(4000);
+		          	     		promptSpeechInput();
+
+	                		}
+	                		else if(result.get(0).equalsIgnoreCase("continue")){
+	                			msgHolder = "";
+	                			tts.speak("please add message", TextToSpeech.QUEUE_FLUSH, null);
+		          				Thread.sleep(4000);
+		          				promptSpeechInput();
+	                		}
+	                		else if(result.get(0).equalsIgnoreCase("finish")){
+	                			msgHolder = "";
+	                			tts.speak("done adding message. ready to send", TextToSpeech.QUEUE_FLUSH, null);
+	                			counter = 3;
+		          				Thread.sleep(4000);
+		          				promptSpeechInput();
+	                		}
+	                		else{
+	                			 tts.speak("unknown command", TextToSpeech.QUEUE_FLUSH, null);
+	          					 Thread.sleep(2000);
 	          					 promptSpeechInput();
-	          				} catch (InterruptedException e) {
+	                		}
+	                		 	          				} 
+	                	catch (InterruptedException e) {
 	          					// TODO Auto-generated catch block
 	          					e.printStackTrace();
 	          				}
@@ -371,8 +402,12 @@ public class create_message extends Activity implements OnClickListener,OnInitLi
 	    				
 	                }
 	                else if(counter == 3 && result.get(0).equalsIgnoreCase("send")){
-	                	tts.speak("sending message", TextToSpeech.QUEUE_FLUSH, null);
-	                	this.sendSMS(number, txtMessage.getText().toString());
+	                	/*tts.speak("sending message", TextToSpeech.QUEUE_FLUSH, null);
+	                	this.sendSMS(number, txtMessage.getText().toString());*/
+	                	if(this.checkContact(txtNumber.getText().toString())){
+	                	 tts.speak("sending message", TextToSpeech.QUEUE_FLUSH, null);
+	       				 this.sendSMS(number, txtMessage.getText().toString());
+	       			 	}
 	                }
 	                else if(result.get(0).equalsIgnoreCase("boise dashboard")){
 	                	Intent i=new Intent(create_message.this,NormalMessaging.class);

@@ -55,22 +55,14 @@
             android:textStyle="normal" />
     </LinearLayout>
 
-    <AnalogClock
-        android:id="@+id/analogClock1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/linearLayout1"
-        android:layout_alignLeft="@+id/linearLayout1"
-        android:layout_below="@+id/txtSpeechInput" />
-
     <Button
         android:id="@+id/btnNormal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/analogClock1"
-        android:layout_alignLeft="@+id/analogClock1"
-        android:layout_alignRight="@+id/linearLayout1"
-        android:textSize="25sp"
-        android:text="@string/btn_normal" />
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="52dp"
+        android:text="@string/btn_normal"
+        android:textSize="25sp" />
 
 </RelativeLayout>

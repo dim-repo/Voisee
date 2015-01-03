@@ -89,14 +89,8 @@ public class MainActivity extends Activity implements OnInitListener {
     	
         // check if Text To Speech is initialized or not
         if (status == TextToSpeech.SUCCESS) {
-            
-            try {
-            	tts.speak("Voisee activated. please tap the screen to activate voice command.", TextToSpeech.QUEUE_FLUSH, null);
-				Thread.sleep(5000);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+           
+            	tts.speak("Voisee activated. please tap the lower part of the screen to activate voice command.", TextToSpeech.QUEUE_FLUSH, null);
            
         } else {
             Toast.makeText(this, "Text To Speech is not initialized", Toast.LENGTH_LONG).show();
@@ -141,16 +135,14 @@ public class MainActivity extends Activity implements OnInitListener {
                     tts.speak("we are now at contacts", TextToSpeech.QUEUE_FLUSH, null);
                     this.finish();
                 }
-                else if(result.get(0).equalsIgnoreCase("boise")){
+                else if(result.get(0).equalsIgnoreCase("start")){
     				Intent i=new Intent(MainActivity.this,NormalMessaging.class);
     				i.putExtra("user" , "blind");
     				MainActivity.this.startActivity(i);
     				tts.speak("loading dashboard", TextToSpeech.QUEUE_FLUSH, null);
     				this.finish();
-
-    				
                 }
-                else if(result.get(0).equalsIgnoreCase("boise off")){
+                else if(result.get(0).equalsIgnoreCase("sleep")){
                 	 try {
                      	tts.speak("voisee deactivated", TextToSpeech.QUEUE_FLUSH, null);
          				Thread.sleep(3000);
